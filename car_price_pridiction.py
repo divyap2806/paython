@@ -7,7 +7,7 @@ import seaborn as sns
 
 df = pd.read_excel("E:\\car.price.csv.xlsx")
 #iloc ka use Pandas mein row aur column ki position (index) se data select karne ke liye hota hai. Rows → pehla : , Columns → doosra part
-df = df.iloc[ : , :]
+
 print(df.head())
 
 #Assign Column Headers
@@ -30,7 +30,7 @@ print(data.isna().sum())
 
 
 #Convert MPG to L/100km
-data["city-mpg"] = 235/df["city-mpg"]
+data["city-mpg"] = 235/data["city-mpg"]
 data.rename(columns = {"city-mpg" : "city-l / 100km"} , inplace = True)
 print(data.columns)
 print(data.dtypes)
@@ -56,9 +56,10 @@ print(data["price"].dtypes)
 
 
 #Normalize Features
-length_nor =data["length"] = data["length"] / data["length"].max()
-width_nor =data["width"] = data["width"] / data["width"].max()
-height_nor= data["height"] = data["height"] / data["height"].max()
+data["length"] = data["length"] / data["length"].max()
+data["width"] = data["width"] / data["width"].max()
+data["height"] = data["height"] / data["height"].max()
+
 
 #3 parts mai price ko divide karna
 bins = np.linspace(data["price"].min(), data["price"].max(), 4)
@@ -75,6 +76,61 @@ plt.show()
 data['price_binned'].value_counts().plot(kind='bar')
 plt.show()
 
+print("\n")
 #Convert Categorical Data to Numerical
-data = pd.get_dummies(data["fuel-type"])
-print(data)
+#get_dummies()  → Categorical values ko 0 aur 1 mein convert karta hai.
+data_fuel = pd.get_dummies(data["fuel-type"])
+#print(data.describe())
+print(data_fuel)
+
+
+
+# Data Visualization
+#Box ke bahar jo vertical line hai, usko whisker bolte hain.
+plt.boxplot(data["price"])
+plt.show()
+
+
+sns.boxplot(x = "drive-wheels"  , y = "price" , data= data)
+plt.show()
+
+#plt.scatter()
+
+#scatter() scatter plot banata hai.
+plt.scatter(data["engine-size"] , data["price"])
+plt.title("scatter plot between engine-size and price")
+plt.xlabel('Engine size')
+plt.ylabel('Price')
+plt.grid()
+plt.show()
+
+#Grouping Data by Drive-Wheels and Body-Style
+test = data[["drive-wheels" , "body-style" , "price"]]
+data_grb = test.groupby(["drive-wheels" , "body-style"] ,as_index = False).mean()
+print(data_grb)
+
+
+print("\n")
+#Create a Pivot Table & Heatmap
+data_pivot = data_grb.pivot(
+    index="drive-wheels",
+    columns="body-style"
+)
+
+data_pivot
+print(data_pivot)
+
+plt.pcolor(data_pivot, cmap = "rainbow")
+plt.colorbar()
+plt.show()
+
+'''group_annova = group_annova.groupby(["make"])
+annova_result_l  =sp.stats.f_oneway(group_annova.get_group("audi" ) ["price"],
+                                    group_annova.get_group("bmw")["price"],
+                                    group_annova.get_group('subaru')['price'])
+
+print(annova_results_l)
+
+sns.regplot(x ='engine-size', y ='price', data = data)
+plt.ylim(0, )'''
+
